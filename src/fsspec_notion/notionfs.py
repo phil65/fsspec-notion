@@ -66,7 +66,7 @@ class NotionFS(AbstractFileSystem):
                 properties={"title": {"title": [{"text": {"content": part}}]}},
             )
 
-            new_id = response["id"]
+            new_id = response["id"]  # type: ignore
             self._path_cache[current_path] = new_id
             parent_id = new_id
 
@@ -100,7 +100,7 @@ class NotionFS(AbstractFileSystem):
                     parent={"type": "page_id", "page_id": parent_id},
                     properties={"title": {"title": [{"text": {"content": part}}]}},
                 )
-                new_id = response["id"]
+                new_id = response["id"]  # type: ignore
                 self._path_cache[current_path] = new_id
                 parent_id = new_id
             except Exception as e:
@@ -187,9 +187,8 @@ class NotionFS(AbstractFileSystem):
 
         if not path or path == "/":
             # Root directory - list all pages under parent page
-            results = self.notion.blocks.children.list(block_id=self.parent_page_id).get(
-                "results", []
-            )
+            children = self.notion.blocks.children.list(block_id=self.parent_page_id)
+            results = children.get("results", [])  # type: ignore
 
             if not results:
                 return [] if detail else []
@@ -216,8 +215,8 @@ class NotionFS(AbstractFileSystem):
         if not page_id:
             msg = f"Path not found: {path}"
             raise FileNotFoundError(msg)
-
-        results = self.notion.blocks.children.list(block_id=page_id).get("results", [])
+        children = self.notion.blocks.children.list(block_id=page_id)
+        results = children.get("results", [])  # type: ignore
 
         if not results:
             return [] if detail else []
@@ -291,7 +290,8 @@ class NotionFS(AbstractFileSystem):
 
     def _read_page_content(self, page_id: str, binary: bool = False) -> str | bytes:
         """Read content from a Notion page."""
-        blocks = self.notion.blocks.children.list(block_id=page_id).get("results", [])
+        children = self.notion.blocks.children.list(block_id=page_id)
+        blocks = children.get("results", [])  # type: ignore
         content: list[str] = []
 
         for block in blocks:
@@ -322,10 +322,8 @@ class NotionFS(AbstractFileSystem):
                 # Update existing page
                 self.notion.pages.update(page_id=page_id, properties=properties)
                 # Clear existing content
-                existing_blocks = self.notion.blocks.children.list(block_id=page_id).get(
-                    "results", []
-                )
-                for block in existing_blocks:
+                children = self.notion.blocks.children.list(block_id=page_id)
+                for block in children.get("results", []):  # type: ignore
                     self.notion.blocks.delete(block_id=block["id"])
             else:
                 # Create new page
@@ -333,7 +331,7 @@ class NotionFS(AbstractFileSystem):
                     parent={"type": "page_id", "page_id": self.parent_page_id},
                     properties=properties,
                 )
-                page_id = response["id"]
+                page_id = response["id"]  # type: ignore
                 assert page_id
                 self._path_cache[path] = page_id
 
