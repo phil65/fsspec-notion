@@ -42,6 +42,9 @@ jobs:
 
       - name: Run tests
         run: uv run pytest --cov-report=xml
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_PARENT_PAGE_ID: ${{ secrets.NOTION_PARENT_PAGE_ID }}
 
       - name: Upload test results to Codecov
         uses: codecov/codecov-action@v4
