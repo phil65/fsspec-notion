@@ -41,6 +41,8 @@ jobs:
         run: uv run mypy src/fsspec_notion/
 
       - name: Run tests
+        # Only run tests on one platform otherwise they interfere.
+        if: matrix.os == 'ubuntu-latest' && matrix.python_version == '3.13'
         run: uv run pytest --cov-report=xml
         env:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
