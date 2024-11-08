@@ -156,9 +156,8 @@ class NotionFS(AbstractFileSystem):
 
             # Search for the page by title under current parent
             found = False
-            response = self.notion.search(
-                query=part, filter={"property": "object", "value": "page"}
-            ).get("results", [])
+            _filter = {"property": "object", "value": "page"}
+            response = self.notion.search(query=part, filter=_filter).get("results", [])  # type: ignore
 
             for page in response:
                 page_title = (
